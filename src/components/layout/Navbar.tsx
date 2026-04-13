@@ -5,8 +5,7 @@ const navLinks = [
   { label: "Servicios", href: "#services" },
   { label: "Portafolio", href: "#portfolio" },
   { label: "Proceso", href: "#process" },
-  { label: "Formación", href: "#training" },
-  { label: "Consultoría", href: "#consulting" },
+  { label: "Formación y consultoría", href: "#training" },
   { label: "Contacto", href: "#contact" },
 ];
 

@@ -3,6 +3,7 @@ import HeroSection from "../sections/home/HeroSection";
 import ServicesSection from "../sections/home/ServicesSection";
 import PortfolioSection from "../sections/home/PortfolioSection";
 import ProcessSection from "../sections/home/ProcessSection";
+import ExpertiseSection from "../sections/home/ExpertiseSection";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <ServicesSection />
         <PortfolioSection />
         <ProcessSection />
+        <ExpertiseSection />
       </main>
     </div>
   );
