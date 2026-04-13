@@ -1,5 +1,6 @@
 import Navbar from "../components/layout/Navbar";
 import HeroSection from "../sections/home/HeroSection";
+import ServicesSection from "../sections/home/ServicesSection";
 
 export default function App() {
   return (
@@ -7,6 +8,7 @@ export default function App() {
       <Navbar />
       <main>
         <HeroSection />
+        <ServicesSection />
       </main>
     </div>
   );
