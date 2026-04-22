@@ -4,6 +4,7 @@ import ServicesSection from "../sections/home/ServicesSection";
 import PortfolioSection from "../sections/home/PortfolioSection";
 import ProcessSection from "../sections/home/ProcessSection";
 import ExpertiseSection from "../sections/home/ExpertiseSection";
+import ClassSignupSection from "../sections/home/ClassSignupSection";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <PortfolioSection />
         <ProcessSection />
         <ExpertiseSection />
+        <ClassSignupSection />
       </main>
     </div>
   );
