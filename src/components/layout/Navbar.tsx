@@ -2,12 +2,11 @@ import Container from "../ui/Container";
 import Button from "../ui/Button";
 
 const navLinks = [
-  { label: "Servicios", href: "#services" },
-  { label: "Portafolio", href: "#portfolio" },
-  { label: "Proceso", href: "#process" },
-  { label: "Formación y consultoría", href: "#training" },
-  { label: "Contacto", href: "#contact" },
-  { label: "Clase gratis", href: "#clase-gratis" },
+  { label: "Servicios", href: "/#services" },
+  { label: "Portafolio", href: "/#portfolio" },
+  { label: "Proceso", href: "/#process" },
+  { label: "Clase gratis", href: "/#clase-gratis" },
+  { label: "Consultoría", href: "/consultoria" },
 ];
 
 export default function Navbar() {

@@ -1,23 +1,14 @@
-import Navbar from "../components/layout/Navbar";
-import HeroSection from "../sections/home/HeroSection";
-import ServicesSection from "../sections/home/ServicesSection";
-import PortfolioSection from "../sections/home/PortfolioSection";
-import ProcessSection from "../sections/home/ProcessSection";
-import ExpertiseSection from "../sections/home/ExpertiseSection";
-import ClassSignupSection from "../sections/home/ClassSignupSection";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import HomePage from "../pages/HomePage";
+import ConsultingPage from "../pages/ConsultingPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <Navbar />
-      <main>
-        <HeroSection />
-        <ServicesSection />
-        <PortfolioSection />
-        <ProcessSection />
-        <ExpertiseSection />
-        <ClassSignupSection />
-      </main>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/consultoria" element={<ConsultingPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
