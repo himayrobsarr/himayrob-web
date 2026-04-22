@@ -7,6 +7,7 @@ const navLinks = [
   { label: "Proceso", href: "#process" },
   { label: "Formación y consultoría", href: "#training" },
   { label: "Contacto", href: "#contact" },
+  { label: "Clase gratis", href: "#clase-gratis" },
 ];
 
 export default function Navbar() {

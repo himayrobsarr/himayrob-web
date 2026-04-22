@@ -82,7 +82,7 @@ export default function ClassSignupSection() {
       setSubmitStatus("success");
       setSubmitMessage(
         data?.message ||
-          "Tu registro fue enviado correctamente. Pronto recibirás información de la clase."
+          "Tu registro fue enviado correctamente. Pronto recibirás la información de la próxima clase."
       );
       setFormValues(initialValues);
     } catch (error) {
@@ -100,8 +100,8 @@ export default function ClassSignupSection() {
 
   return (
     <section
-      id="class-signup"
-      className="relative overflow-hidden bg-slate-950 py-20 lg:py-24"
+      id="clase-gratis"
+      className="relative overflow-hidden bg-slate-950 py-20 lg:py-24 scroll-mt-28"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.10),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(139,92,246,0.12),transparent_28%)]" />
 
@@ -129,16 +129,46 @@ export default function ClassSignupSection() {
             ))}
           </ul>
 
-          <div className="mt-8 rounded-3xl border border-cyan-400/15 bg-cyan-400/5 p-5">
-            <p className="text-sm leading-7 text-slate-300">
-              Esta inscripción está pensada para personas interesadas en la
-              próxima clase gratuita. Luego podrás recibir información sobre
-              fecha, acceso y próximos espacios relacionados.
-            </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="rounded-3xl border border-cyan-400/15 bg-cyan-400/5 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                Qué recibirás
+              </p>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                Aviso de próxima fecha, detalles de acceso y seguimiento de
+                nuevas clases relacionadas.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
+                Registro
+              </p>
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                {classSignupContent.trustNote}
+              </p>
+            </div>
           </div>
+
+          <p className="mt-6 text-sm leading-7 text-slate-400">
+            {classSignupContent.ctaNote}
+          </p>
         </div>
 
         <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur-sm md:p-8">
+          <div className="mb-6">
+            <p className="text-sm font-medium text-cyan-300">
+              Registra tus datos
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold text-white">
+              Quiero entrar a la próxima clase gratuita
+            </h3>
+            <p className="mt-3 text-sm leading-7 text-slate-300">
+              Déjame tus datos y te avisaré cuando esté disponible la fecha más
+              cercana.
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
               <FormInput
