@@ -101,7 +101,7 @@ export default function ClassSignupSection() {
   return (
     <section
       id="clase-gratis"
-      className="relative overflow-hidden bg-slate-950 py-20 lg:py-24 scroll-mt-28"
+      className="relative overflow-hidden bg-slate-950 py-20 scroll-mt-28 lg:py-24"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.10),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(139,92,246,0.12),transparent_28%)]" />
 
@@ -134,16 +134,18 @@ export default function ClassSignupSection() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
                 Qué recibirás
               </p>
+
               <p className="mt-3 text-sm leading-7 text-slate-300">
-                Aviso de próxima fecha, detalles de acceso y seguimiento de
-                nuevas clases relacionadas.
+                Fecha, acceso y una ruta inicial para empezar a usar IA con
+                criterio.
               </p>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
-                Registro
+                Registro rápido
               </p>
+
               <p className="mt-3 text-sm leading-7 text-slate-300">
                 {classSignupContent.trustNote}
               </p>
@@ -160,12 +162,13 @@ export default function ClassSignupSection() {
             <p className="text-sm font-medium text-cyan-300">
               Registra tus datos
             </p>
+
             <h3 className="mt-2 text-2xl font-semibold text-white">
-              Quiero entrar a la próxima clase gratuita
+              Quiero recibir la próxima fecha
             </h3>
+
             <p className="mt-3 text-sm leading-7 text-slate-300">
-              Déjame tus datos y te avisaré cuando esté disponible la fecha más
-              cercana.
+              Déjame tus datos principales. El resto lo podemos validar después.
             </p>
           </div>
 
@@ -181,11 +184,10 @@ export default function ClassSignupSection() {
               />
 
               <FormInput
-                label="Correo"
-                name="email"
-                type="email"
-                value={formValues.email}
-                placeholder="tu@email.com"
+                label="WhatsApp"
+                name="phone"
+                value={formValues.phone}
+                placeholder="3001234567"
                 required
                 onChange={handleInputChange}
               />
@@ -193,10 +195,11 @@ export default function ClassSignupSection() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <FormInput
-                label="Teléfono o WhatsApp"
-                name="phone"
-                value={formValues.phone}
-                placeholder="3001234567"
+                label="Correo"
+                name="email"
+                type="email"
+                value={formValues.email}
+                placeholder="tu@email.com"
                 required
                 onChange={handleInputChange}
               />
@@ -221,12 +224,11 @@ export default function ClassSignupSection() {
             />
 
             <FormTextarea
-              label="¿Qué te gustaría aprender o resolver con IA?"
+              label="¿Qué te gustaría aprender? Opcional"
               name="interest"
               value={formValues.interest}
-              placeholder="Cuéntame brevemente qué te interesa de esta clase"
-              required
-              rows={5}
+              placeholder="Ejemplo: automatizar tareas, usar ChatGPT mejor, organizar mi negocio..."
+              rows={4}
               onChange={handleInputChange}
             />
 

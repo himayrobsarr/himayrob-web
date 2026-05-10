@@ -1,36 +1,35 @@
 import type { HeroContent } from "../types/hero";
 
 export const heroContent: HeroContent = {
-  badge: "Desarrollo · IA · Formación · Consultoría",
-  title:
-    "Desarrollo soluciones digitales, automatizaciones con IA y procesos de formación para negocios que quieren avanzar con claridad.",
+  badge: "Desarrollo web · IA · Automatización · Formación",
+  title: "Tecnología práctica para negocios que quieren avanzar sin complicarse.",
   description:
-    "Diseño e implemento páginas, sistemas, flujos automatizados y espacios de aprendizaje orientados a resultados reales, sin complicaciones innecesarias.",
+    "Creo páginas web, automatizaciones con IA y clases prácticas para emprendedores, equipos y empresas que necesitan resultados claros, no discursos técnicos.",
   primaryCta: "Ver servicios",
   secondaryCta: "Solicitar asesoría",
   highlights: [
-    "Desarrollo web y herramientas a medida",
-    "Automatización con n8n e IA",
-    "Clases y consultoría aplicada",
+    "Páginas web y landings enfocadas en conversión",
+    "Automatizaciones con n8n, IA y herramientas reales",
+    "Formación práctica para aplicar IA en el trabajo",
   ],
   cards: [
     {
       id: 1,
-      title: "Desarrollo",
+      title: "Webs que venden",
       description:
-        "Webs, landings, formularios, paneles e integraciones a medida.",
+        "Landing pages, formularios y páginas claras para presentar tu negocio.",
     },
     {
       id: 2,
-      title: "Automatización",
+      title: "Procesos que ahorran tiempo",
       description:
-        "Flujos con n8n, IA, captura de leads, seguimiento y operación.",
+        "Flujos con n8n e IA para reducir tareas manuales y ordenar operaciones.",
     },
     {
       id: 3,
-      title: "Formación",
+      title: "Clases sin enredo técnico",
       description:
-        "Clases, mentoría y consultoría para implementar con criterio.",
+        "Formación práctica para usar IA y automatización en casos reales.",
     },
   ],
 };

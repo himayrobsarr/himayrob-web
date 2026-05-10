@@ -34,12 +34,6 @@ export default function ConsultingSection() {
     "idle" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
-  const [paymentData, setPaymentData] = useState<null | {
-    reference: string;
-    amountInCents: number;
-    currency: string;
-    redirectUrl: string;
-  }>(null);
 
   const whatsappUrl = useMemo(() => {
     const encodedMessage = encodeURIComponent(
@@ -172,7 +166,6 @@ export default function ConsultingSection() {
         redirectUrl: data.redirectUrl,
       };
 
-      setPaymentData(nextPaymentData);
       setSubmitStatus("success");
       setSubmitMessage(
         "Solicitud guardada correctamente. Ahora continúa con el pago."

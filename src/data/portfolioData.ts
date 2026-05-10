@@ -2,44 +2,44 @@ import type { PortfolioContent } from "../types/portfolio";
 
 export const portfolioContent: PortfolioContent = {
   badge: "Casos y proyectos",
-  title: "Proyectos pensados para resolver necesidades reales",
+  title: "Proyectos creados para resolver problemas reales",
   description:
-    "Una muestra de soluciones construidas para convertir ideas, procesos y necesidades comerciales en herramientas funcionales y escalables.",
+    "Ejemplos de soluciones web, automatización y formación aplicadas a necesidades concretas de negocio.",
   items: [
     {
       id: 1,
-      title: "Landing comercial para software POS",
+      title: "Landing para software POS",
       category: "Desarrollo web",
       description:
-        "Diseño y desarrollo de una landing orientada a presentar un software ERP/POS de forma clara, comercial y profesional.",
+        "Página comercial para presentar un software ERP/POS de forma clara y profesional.",
       problem:
-        "El producto necesitaba una presentación más clara para captar interés comercial y explicar mejor su propuesta de valor.",
+        "El producto necesitaba explicar mejor su valor y generar más confianza comercial.",
       solution:
-        "Se construyó una landing moderna con estructura comercial, secciones de beneficios, módulos, precios y llamados a la acción.",
+        "Se creó una landing moderna con beneficios, módulos, precios y llamados a la acción.",
       stack: ["React", "Vite", "Tailwind"],
     },
     {
       id: 2,
-      title: "Automatización de procesos con n8n",
+      title: "Automatización de procesos",
       category: "Automatización e IA",
       description:
-        "Diseño de flujos para conectar formularios, bases de datos, agentes de IA y procesos operativos repetitivos.",
+        "Flujos para conectar formularios, bases de datos, IA y tareas repetitivas.",
       problem:
-        "Había tareas manuales, repetitivas y poco escalables que consumían tiempo y generaban fricción operativa.",
+        "El equipo invertía tiempo en tareas manuales que podían automatizarse.",
       solution:
-        "Se estructuraron automatizaciones con n8n e integraciones para capturar datos, procesarlos y activar acciones de manera más eficiente.",
+        "Se diseñaron flujos con n8n para capturar datos, procesarlos y activar acciones.",
       stack: ["n8n", "Postgres", "Google Sheets", "IA"],
     },
     {
       id: 3,
-      title: "Capacitaciones prácticas en IA y automatización",
+      title: "Capacitaciones en IA",
       category: "Formación",
       description:
-        "Espacios de formación dirigidos a personas, equipos y organizaciones que necesitan entender y aplicar IA de forma útil.",
+        "Clases prácticas para personas y equipos que quieren aplicar IA en su trabajo.",
       problem:
-        "Muchas personas y equipos necesitan aprender tecnología sin quedarse solo en la teoría o en conceptos demasiado técnicos.",
+        "Muchas personas quieren aprender IA, pero se pierden entre teoría y herramientas.",
       solution:
-        "Se diseñaron clases prácticas y orientadas a casos reales para facilitar adopción, comprensión e implementación.",
+        "Se diseñaron sesiones prácticas con casos reales, ejercicios guiados y aplicación inmediata.",
       stack: ["ChatGPT", "n8n", "Herramientas IA", "Metodología práctica"],
     },
   ],

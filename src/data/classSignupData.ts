@@ -12,16 +12,16 @@ export const roleOptions: ClassSignupOption[] = [
 
 export const classSignupContent = {
   badge: "Clase gratuita",
-  title: "Reserva tu cupo para la próxima clase gratuita de IA aplicada al trabajo",
+  title: "Aprende a usar IA en tu trabajo sin enredarte",
   description:
-    "Una sesión práctica para entender cómo usar IA como asistente laboral y empezar a aplicar herramientas reales en productividad, organización y trabajo diario.",
+    "Una sesión práctica para entender cómo usar IA como asistente, organizar tareas y empezar a aplicar herramientas reales.",
   highlights: [
-    "Enfoque práctico, claro y útil desde la primera sesión",
-    "Ideal para emprendedores, equipos y personas que quieren empezar bien",
-    "Te avisaré la fecha más cercana y los detalles de acceso",
+    "Explicación clara, sin tecnicismos innecesarios",
+    "Ejemplos útiles para trabajo, estudio o negocio",
+    "Aviso directo cuando se abra la próxima fecha",
   ],
   trustNote:
-    "Al registrarte, quedarás en la lista de interesados para recibir la información de la próxima clase gratuita.",
+    "Te escribiré cuando esté disponible la próxima clase gratuita.",
   ctaNote:
-    "Cupos sujetos a disponibilidad según la fecha programada.",
+    "Registro sujeto a disponibilidad según la fecha programada.",
 };

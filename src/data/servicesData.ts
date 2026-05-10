@@ -2,56 +2,56 @@ import type { ServicesContent } from "../types/services";
 
 export const servicesContent: ServicesContent = {
   badge: "Servicios principales",
-  title: "Soluciones diseñadas para construir, automatizar y acompañar",
+  title: "Soluciones simples para vender, automatizar y aprender",
   description:
-    "Trabajo con emprendedores, negocios y equipos que necesitan implementar tecnología de forma útil, clara y escalable.",
+    "Trabajo con emprendedores, negocios y equipos que necesitan tecnología útil, clara y sostenible.",
   items: [
     {
       id: 1,
-      title: "Desarrollo",
+      title: "Desarrollo web",
       description:
-        "Construyo soluciones digitales enfocadas en funcionalidad, claridad comercial y escalabilidad.",
+        "Páginas y herramientas digitales pensadas para presentar, vender y captar clientes.",
       points: [
-        "Landing pages y páginas web",
-        "Formularios conectados a procesos",
-        "Paneles y herramientas internas",
-        "Integraciones a medida",
+        "Landing pages comerciales",
+        "Sitios web para servicios",
+        "Formularios conectados",
+        "Herramientas internas",
       ],
     },
     {
       id: 2,
-      title: "IA y automatización",
+      title: "Automatización con IA",
       description:
-        "Diseño flujos que reducen trabajo manual y convierten procesos repetitivos en sistemas útiles.",
+        "Flujos que conectan datos, formularios, IA y acciones para reducir trabajo manual.",
       points: [
         "Automatización con n8n",
-        "Captura y seguimiento de leads",
-        "Agentes y flujos con IA",
-        "Integración con formularios, Sheets, WhatsApp o CRM",
+        "Seguimiento de leads",
+        "Agentes y asistentes con IA",
+        "Integración con Sheets, CRM o WhatsApp",
       ],
     },
     {
       id: 3,
-      title: "Clases",
+      title: "Formación práctica",
       description:
-        "Desarrollo espacios de formación prácticos para aprender a implementar tecnología con criterio.",
+        "Clases para entender y aplicar IA sin quedarse solo en teoría.",
       points: [
         "Clases personalizadas",
         "Capacitaciones para equipos",
-        "Sesiones prácticas paso a paso",
-        "Aprendizaje aplicado a casos reales",
+        "Casos reales paso a paso",
+        "Uso práctico de herramientas IA",
       ],
     },
     {
       id: 4,
-      title: "Consultoría",
+      title: "Consultoría tecnológica",
       description:
-        "Te ayudo a evaluar opciones, definir prioridades y tomar mejores decisiones técnicas y operativas.",
+        "Acompañamiento para decidir qué construir, automatizar o mejorar primero.",
       points: [
         "Diagnóstico de procesos",
         "Ruta de implementación",
-        "Revisión de herramientas y arquitectura",
-        "Acompañamiento estratégico",
+        "Revisión de herramientas",
+        "Priorización técnica y comercial",
       ],
     },
   ],
