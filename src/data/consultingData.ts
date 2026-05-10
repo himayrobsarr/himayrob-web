@@ -29,16 +29,53 @@ export const projectStageOptions: ConsultingOption[] = [
 ];
 
 export const consultingContent = {
-  badge: "Consultoría",
-  title: "Solicita una consultoría para revisar tu caso, tu proceso o tu idea",
+  badge: "Sesión estratégica",
+  title: "Sesión estratégica 1 a 1",
+  subtitle:
+    "60 minutos para aterrizar tu idea, resolver dudas y definir el mejor siguiente paso.",
   description:
-    "Un espacio para entender tu necesidad, aterrizar opciones y definir una ruta clara antes de construir, automatizar o implementar.",
+    "Una sesión pensada para personas, emprendedores y negocios que necesitan claridad antes de construir, automatizar o implementar.",
+  price: "$75.000 COP",
+  duration: "60 minutos",
   highlights: [
-    "Ideal para proyectos que necesitan claridad antes de ejecutar",
-    "Pensado para negocios, emprendedores y equipos",
-    "Luego podrás pasar a implementación, formación o desarrollo según el caso",
+    "Espacio útil para revisar tu caso con enfoque técnico y estratégico",
+    "Ideal para ideas, proyectos en marcha o procesos que necesitan orden",
+    "Después de la sesión podrás tener más claridad sobre herramientas, opciones y ruta de implementación",
+  ],
+  includes: [
+    "Revisión de tu necesidad, idea o proceso actual",
+    "Orientación sobre herramientas, arquitectura o enfoque recomendado",
+    "Definición del mejor siguiente paso",
+    "Posible ruta hacia desarrollo, automatización o formación",
+  ],
+  afterPayment: [
+    "Recibes confirmación de tu solicitud",
+    "Tu pago queda registrado",
+    "Puedes escribirme por WhatsApp para agilizar la coordinación",
+    "Yo también podré contactarte para definir el horario",
+  ],
+  faq: [
+    {
+      question: "¿Cuánto dura la sesión?",
+      answer: "La sesión estratégica tiene una duración de 60 minutos.",
+    },
+    {
+      question: "¿Cuál es el valor?",
+      answer: "El valor actual de la sesión es de $75.000 COP.",
+    },
+    {
+      question: "¿La sesión es virtual?",
+      answer: "Sí. La sesión está pensada en modalidad virtual.",
+    },
+    {
+      question: "¿Qué pasa después del pago?",
+      answer:
+        "Se confirma tu solicitud y coordinamos el horario contigo. En una fase posterior este proceso podrá automatizarse.",
+    },
   ],
   trustBlockTitle: "Qué puedes esperar",
   trustBlockText:
-    "Primero revisamos el contexto, la necesidad real y el mejor siguiente paso. No se trata de vender por vender, sino de definir una solución útil.",
+    "No se trata de vender por vender. Esta sesión está pensada para entender bien tu caso y darte claridad real sobre el mejor camino a seguir.",
+  whatsappMessage:
+    "Hola Himayrob, me interesa la Sesión estratégica 1 a 1 y quiero más información.",
 };
