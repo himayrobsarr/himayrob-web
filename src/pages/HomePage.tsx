@@ -5,6 +5,10 @@ import PortfolioSection from "../sections/home/PortfolioSection";
 import ProcessSection from "../sections/home/ProcessSection";
 import ExpertiseSection from "../sections/home/ExpertiseSection";
 import ClassSignupSection from "../sections/home/ClassSignupSection";
+import WebPackagesSection from "../sections/home/WebPackagesSection";
+import MaintenanceSection from "../sections/home/MaintenanceSection";
+import WebsitePreviewsSection from "../sections/home/WebsitePreviewsSection";
+import AiValueSection from "../sections/home/AiValueSection";
 
 export default function HomePage() {
   return (
@@ -12,6 +16,10 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+        <AiValueSection />
+        <WebPackagesSection />
+        <WebsitePreviewsSection />
+        <MaintenanceSection />
         <ServicesSection />
         <PortfolioSection />
         <ProcessSection />

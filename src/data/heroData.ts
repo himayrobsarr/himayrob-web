@@ -1,35 +1,32 @@
 import type { HeroContent } from "../types/hero";
 
 export const heroContent: HeroContent = {
-  badge: "Desarrollo web · IA · Automatización · Formación",
-  title: "Tecnología práctica para negocios que quieren avanzar sin complicarse.",
+  badge: "Paginas web + IA para negocios",
+  title: "Tu negocio se ve mejor. Tus clientes llegan mas facil.",
   description:
-    "Creo páginas web, automatizaciones con IA y clases prácticas para emprendedores, equipos y empresas que necesitan resultados claros, no discursos técnicos.",
-  primaryCta: "Ver servicios",
-  secondaryCta: "Solicitar asesoría",
+    "Landings, paginas empresariales y tiendas online listas para WhatsApp, celular y funciones con IA cuando tu negocio las necesita.",
+  primaryCta: "Ver paquetes web",
+  secondaryCta: "Cotizar ahora",
   highlights: [
-    "Páginas web y landings enfocadas en conversión",
-    "Automatizaciones con n8n, IA y herramientas reales",
-    "Formación práctica para aplicar IA en el trabajo",
+    "Desde $800.000 COP",
+    "Diseno a la medida",
+    "Publicacion incluida",
   ],
   cards: [
     {
       id: 1,
-      title: "Webs que venden",
-      description:
-        "Landing pages, formularios y páginas claras para presentar tu negocio.",
+      title: "1",
+      description: "Pagina o tienda segun el negocio.",
     },
     {
       id: 2,
-      title: "Procesos que ahorran tiempo",
-      description:
-        "Flujos con n8n e IA para reducir tareas manuales y ordenar operaciones.",
+      title: "2",
+      description: "Contacto directo por WhatsApp.",
     },
     {
       id: 3,
-      title: "Clases sin enredo técnico",
-      description:
-        "Formación práctica para usar IA y automatización en casos reales.",
+      title: "3",
+      description: "Presencia profesional publicada.",
     },
   ],
 };

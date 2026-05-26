@@ -2,18 +2,19 @@ import Container from "../ui/Container";
 import Button from "../ui/Button";
 
 const navLinks = [
-  { label: "Servicios", href: "/#services" },
-  { label: "Portafolio", href: "/#portfolio" },
-  { label: "Proceso", href: "/#process" },
+  { label: "Paquetes web", href: "/#paquetes-web" },
+  { label: "IA", href: "/#ia" },
+  { label: "Paginas creadas", href: "/#paginas-creadas" },
+  { label: "Mantenimiento", href: "/#mantenimiento" },
   { label: "Clase gratis", href: "/#clase-gratis" },
-  { label: "Consultoría", href: "/consultoria" },
+  { label: "Consultoria", href: "/consultoria" },
 ];
 
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/75 backdrop-blur-md">
       <Container className="flex h-20 items-center justify-between">
-        <a href="#" className="text-lg font-semibold tracking-tight text-white">
+        <a href="/" className="text-lg font-semibold tracking-tight text-white">
           himayrob<span className="text-red-500">.</span>
         </a>
 
@@ -30,7 +31,14 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:block">
-          <Button variant="primary">Hablemos</Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              window.location.href = "/consultoria";
+            }}
+          >
+            Hablemos
+          </Button>
         </div>
       </Container>
     </header>
