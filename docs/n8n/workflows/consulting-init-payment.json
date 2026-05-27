@@ -1,0 +1,196 @@
+{
+  "name": "Consulting Init Payment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consulting/init-payment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "7b7b2d23-8cc5-43d5-8f13-645dd07d3020",
+      "name": "Webhook - Init Payment",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -900,
+        120
+      ],
+      "webhookId": "consulting-init-payment"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\n\nconst durationHours = Number(body.durationHours);\nconst amountInCents = Number(body.amountInCents);\nconst currency = body.currency || 'COP';\nconst timezone = body.timezone || 'America/Bogota';\n\nconst requiredFields = [\n  'fullName',\n  'email',\n  'phone',\n  'selectedStart',\n  'selectedEnd',\n  'businessType',\n  'needType',\n  'projectStage',\n  'message',\n];\n\nfor (const field of requiredFields) {\n  if (!String(body[field] || '').trim()) {\n    return [{ json: { ok: false, statusCode: 400, message: `Missing field: ${field}` } }];\n  }\n}\n\nif (![1, 2, 3].includes(durationHours)) {\n  return [{ json: { ok: false, statusCode: 400, message: 'durationHours must be 1, 2 or 3.' } }];\n}\n\nconst expectedAmount = durationHours * 75000 * 100;\n\nif (amountInCents !== expectedAmount) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Invalid amount.' } }];\n}\n\nif (currency !== 'COP') {\n  return [{ json: { ok: false, statusCode: 400, message: 'Invalid currency.' } }];\n}\n\nconst startsAt = new Date(body.selectedStart);\nconst endsAt = new Date(body.selectedEnd);\n\nif (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Invalid selectedStart or selectedEnd.' } }];\n}\n\nconst diffHours = (endsAt.getTime() - startsAt.getTime()) / (60 * 60 * 1000);\n\nif (diffHours !== durationHours) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Selected slot does not match duration.' } }];\n}\n\nconst colombiaParts = new Intl.DateTimeFormat('en-CA', {\n  timeZone: 'America/Bogota',\n  weekday: 'short',\n  hour: '2-digit',\n  minute: '2-digit',\n  hour12: false,\n}).formatToParts(startsAt);\n\nconst weekday = colombiaParts.find((part) => part.type === 'weekday')?.value;\nconst hour = Number(colombiaParts.find((part) => part.type === 'hour')?.value);\nconst minute = Number(colombiaParts.find((part) => part.type === 'minute')?.value);\n\nif (minute !== 0) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Bookings must start on exact hours.' } }];\n}\n\nif (weekday === 'Sun') {\n  return [{ json: { ok: false, statusCode: 400, message: 'Sunday is not bookable.' } }];\n}\n\nif (weekday === 'Sat' && hour + durationHours > 14) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Saturday bookings must end by 14:00.' } }];\n}\n\nconst bookingUuid = crypto.randomUUID();\nconst reference = `booking_${bookingUuid}`;\nconst redirectUrl = 'https://himayrob.com/consultoria/gracias';\n\nreturn [{\n  json: {\n    ok: true,\n    fullName: String(body.fullName).trim(),\n    email: String(body.email).trim().toLowerCase(),\n    phone: String(body.phone).trim(),\n    businessType: body.businessType,\n    needType: body.needType,\n    projectStage: body.projectStage,\n    message: body.message,\n    source: body.source || 'web-consultoria-horas',\n    durationHours,\n    startsAt: startsAt.toISOString(),\n    endsAt: endsAt.toISOString(),\n    timezone,\n    amountInCents,\n    currency,\n    reference,\n    redirectUrl,\n  }\n}];"
+      },
+      "id": "c3c9d1f1-cc58-4202-b183-6ab8f72e773e",
+      "name": "Validate Init Payment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -680,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "f2a1f951-8443-4924-b7e5-a61f9eb56e65",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7b756366-73eb-439a-996c-d5ea4325841a",
+      "name": "Is Request Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "with lead_insert as (\n  insert into consulting.leads (\n    full_name,\n    email,\n    phone,\n    business_type,\n    need_type,\n    project_stage,\n    message,\n    source\n  )\n  values (\n    $1, $2, $3, $4, $5, $6, $7, $8\n  )\n  returning id\n),\nbooking_insert as (\n  insert into consulting.bookings (\n    lead_id,\n    status,\n    duration_hours,\n    starts_at,\n    ends_at,\n    timezone,\n    amount_in_cents,\n    currency,\n    wompi_reference,\n    expires_at\n  )\n  select\n    id,\n    'pending_payment',\n    $9,\n    $10::timestamptz,\n    $11::timestamptz,\n    $12,\n    $13,\n    $14,\n    $15,\n    now() + interval '15 minutes'\n  from lead_insert\n  where not exists (\n    select 1\n    from consulting.bookings\n    where (\n        status = 'paid'\n        or (status = 'pending_payment' and expires_at > now())\n      )\n      and starts_at < $11::timestamptz\n      and ends_at > $10::timestamptz\n  )\n  returning id, wompi_reference, amount_in_cents, currency\n),\npayment_insert as (\n  insert into consulting.payments (\n    booking_id,\n    wompi_reference,\n    status,\n    amount_in_cents,\n    currency\n  )\n  select\n    id,\n    wompi_reference,\n    'pending',\n    amount_in_cents,\n    currency\n  from booking_insert\n  returning id\n)\nselect\n  booking_insert.id as booking_id,\n  booking_insert.wompi_reference,\n  booking_insert.amount_in_cents,\n  booking_insert.currency\nfrom booking_insert;",
+        "options": {
+          "queryReplacement": "={{ [\n  $('Validate Init Payment').item.json.fullName,\n  $('Validate Init Payment').item.json.email,\n  $('Validate Init Payment').item.json.phone,\n  $('Validate Init Payment').item.json.businessType,\n  $('Validate Init Payment').item.json.needType,\n  $('Validate Init Payment').item.json.projectStage,\n  $('Validate Init Payment').item.json.message,\n  $('Validate Init Payment').item.json.source,\n  $('Validate Init Payment').item.json.durationHours,\n  $('Validate Init Payment').item.json.startsAt,\n  $('Validate Init Payment').item.json.endsAt,\n  $('Validate Init Payment').item.json.timezone,\n  $('Validate Init Payment').item.json.amountInCents,\n  $('Validate Init Payment').item.json.currency,\n  $('Validate Init Payment').item.json.reference\n] }}"
+        }
+      },
+      "id": "0668deee-0c1b-4dd6-ad23-cf5c0226d55a",
+      "name": "Postgres - Create Pending Booking",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -220,
+        20
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "hostinger_db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const booking = $('Postgres - Create Pending Booking').first()?.json;\nconst request = $('Validate Init Payment').first().json;\n\nif (!booking?.wompi_reference) {\n  return [{\n    json: {\n      ok: false,\n      statusCode: 409,\n      message: 'This slot is no longer available.',\n    }\n  }];\n}\n\nconst publicKey = 'REPLACE_WITH_WOMPI_PUBLIC_KEY';\nconst integritySecret = 'REPLACE_WITH_WOMPI_INTEGRITY_SECRET';\n\nconst reference = booking.wompi_reference;\nconst amountInCents = Number(booking.amount_in_cents);\nconst currency = booking.currency || 'COP';\nconst text = String(reference) + String(amountInCents) + String(currency) + String(integritySecret);\n\nfunction rightRotate(value, amount) {\n  return (value >>> amount) | (value << (32 - amount));\n}\n\nfunction sha256(ascii) {\n  const mathPow = Math.pow;\n  const maxWord = mathPow(2, 32);\n  const lengthProperty = 'length';\n  let i;\n  let j;\n  const words = [];\n  const asciiBitLength = ascii[lengthProperty] * 8;\n  let hash = sha256.h = sha256.h || [];\n  const k = sha256.k = sha256.k || [];\n  let primeCounter = k[lengthProperty];\n  const isComposite = {};\n\n  for (let candidate = 2; primeCounter < 64; candidate++) {\n    if (!isComposite[candidate]) {\n      for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;\n      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;\n      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;\n    }\n  }\n\n  ascii += '\\x80';\n  while (ascii[lengthProperty] % 64 - 56) ascii += '\\x00';\n\n  for (i = 0; i < ascii[lengthProperty]; i++) {\n    j = ascii.charCodeAt(i);\n    if (j >> 8) return '';\n    words[i >> 2] |= j << (((3 - i) % 4) * 8);\n  }\n\n  words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;\n  words[words[lengthProperty]] = asciiBitLength;\n\n  for (j = 0; j < words[lengthProperty];) {\n    const w = words.slice(j, j += 16);\n    const oldHash = hash;\n    hash = hash.slice(0, 8);\n\n    for (i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const temp1 =\n        hash[7] +\n        (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +\n        ((e & hash[5]) ^ ((~e) & hash[6])) +\n        k[i] +\n        (w[i] = i < 16\n          ? w[i]\n          : (w[i - 16] +\n              (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +\n              w[i - 7] +\n              (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) | 0);\n      const temp2 =\n        (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +\n        ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(temp1 + temp2) | 0].concat(hash);\n      hash[4] = (hash[4] + temp1) | 0;\n    }\n\n    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;\n  }\n\n  let hex = '';\n  for (i = 0; i < 8; i++) {\n    for (j = 3; j + 1; j--) {\n      const b = (hash[i] >> (j * 8)) & 255;\n      hex += ((b < 16) ? '0' : '') + b.toString(16);\n    }\n  }\n  return hex;\n}\n\nconst integrity = sha256(text);\n\nreturn [{\n  json: {\n    ok: true,\n    reference,\n    amountInCents,\n    currency,\n    redirectUrl: request.redirectUrl,\n    integrity,\n    publicKey,\n    bookingId: booking.booking_id,\n  }\n}];"
+      },
+      "id": "1794d465-72ea-4ad1-a441-db423165ad84",
+      "name": "Sign Wompi Integrity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 200 }}"
+        }
+      },
+      "id": "b983d683-4d6c-4b59-9ce9-258ff4ef9d2b",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        120
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Init Payment": {
+      "main": [
+        [
+          {
+            "node": "Validate Init Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Init Payment": {
+      "main": [
+        [
+          {
+            "node": "Is Request Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Request Valid?": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Create Pending Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Create Pending Booking": {
+      "main": [
+        [
+          {
+            "node": "Sign Wompi Integrity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Wompi Integrity": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3d987241-f2f4-4c0f-908b-884941fb2a02",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "consulting-init-payment",
+  "tags": []
+}

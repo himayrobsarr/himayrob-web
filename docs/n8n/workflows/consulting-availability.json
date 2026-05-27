@@ -1,0 +1,276 @@
+{
+  "name": "Consulting Availability",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consulting/availability",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d2f91d7f-1de4-4adf-8362-c1fdf4f94a01",
+      "name": "Webhook - Availability",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        120
+      ],
+      "webhookId": "consulting-availability"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst durationHours = Number(body.durationHours);\nconst timezone = body.timezone || 'America/Bogota';\nconst date = String(body.date || '').trim();\n\nif (!date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) {\n  return [{ json: { ok: false, statusCode: 400, message: 'date must use YYYY-MM-DD format.' } }];\n}\n\nif (![1, 2, 3].includes(durationHours)) {\n  return [{ json: { ok: false, statusCode: 400, message: 'durationHours must be 1, 2 or 3.' } }];\n}\n\nconst midday = new Date(`${date}T12:00:00-05:00`);\nconst day = midday.getDay();\n\nif (day === 0) {\n  return [{ json: { ok: true, slots: [], date, durationHours, timezone, message: 'Sunday is not bookable.' } }];\n}\n\nreturn [{\n  json: {\n    ok: true,\n    date,\n    durationHours,\n    timezone,\n    day,\n    calendarTimeMin: `${date}T00:00:00-05:00`,\n    calendarTimeMax: day === 6 ? `${date}T14:00:00-05:00` : `${date}T23:59:59-05:00`\n  }\n}];"
+      },
+      "id": "8b303cc7-1447-45c1-9d8e-d7e2d0cbb3aa",
+      "name": "Validate Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a57f8ea3-5cbf-4ce0-acdd-45cc22f6ab24",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "aa244d08-6213-4f8f-8c93-ae3bf774db31",
+              "leftValue": "={{ $json.slots === undefined }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "419c41d8-fc10-4c6d-9a5e-6562cf05c6e2",
+      "name": "Should Query Availability?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $env.GOOGLE_CALENDAR_ID }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.calendarTimeMin }}",
+        "timeMax": "={{ $json.calendarTimeMax }}",
+        "options": {}
+      },
+      "id": "23d35e96-e83f-4fcb-9941-f1540ba9f7d2",
+      "name": "Google Calendar - Busy Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.2,
+      "position": [
+        -120,
+        20
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select\n  id,\n  starts_at,\n  ends_at,\n  status\nfrom consulting.bookings\nwhere (\n    status = 'paid'\n    or (status = 'pending_payment' and expires_at > now())\n  )\n  and starts_at < $2::timestamptz\n  and ends_at > $1::timestamptz\norder by starts_at;",
+        "options": {
+          "queryReplacement": "={{ [$('Validate Request').item.json.calendarTimeMin, $('Validate Request').item.json.calendarTimeMax] }}"
+        }
+      },
+      "id": "cdb85dfa-c6e1-42d4-aa5d-cf50d1525fd9",
+      "name": "Postgres - Busy Bookings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        -120,
+        220
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "e0bc8d20-ea09-48de-b5a6-088577580f32",
+      "name": "Merge Busy Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        140,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Validate Request').first().json;\nconst durationHours = Number(request.durationHours);\nconst date = request.date;\nconst day = Number(request.day);\n\nconst calendarItems = $('Google Calendar - Busy Events').all().map((item) => item.json);\nconst bookingItems = $('Postgres - Busy Bookings').all().map((item) => item.json);\n\nfunction toMs(value) {\n  return new Date(value).getTime();\n}\n\nfunction overlaps(startA, endA, startB, endB) {\n  return startA < endB && endA > startB;\n}\n\nfunction formatHour(dateValue) {\n  return new Intl.DateTimeFormat('es-CO', {\n    timeZone: 'America/Bogota',\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: false,\n  }).format(dateValue);\n}\n\nconst busyIntervals = [];\n\nfor (const event of calendarItems) {\n  const start = event.start?.dateTime || event.start?.date;\n  const end = event.end?.dateTime || event.end?.date;\n  if (start && end) {\n    busyIntervals.push({ start: toMs(start), end: toMs(end), source: 'calendar' });\n  }\n}\n\nfor (const booking of bookingItems) {\n  const start = booking.starts_at || booking.startsAt;\n  const end = booking.ends_at || booking.endsAt;\n  if (start && end) {\n    busyIntervals.push({ start: toMs(start), end: toMs(end), source: 'postgres' });\n  }\n}\n\nconst latestStartHour = day === 6 ? 14 - durationHours : 24 - durationHours;\nconst slots = [];\n\nfor (let hour = 0; hour <= latestStartHour; hour += 1) {\n  const startIso = `${date}T${String(hour).padStart(2, '0')}:00:00-05:00`;\n  const startDate = new Date(startIso);\n  const endDate = new Date(startDate.getTime() + durationHours * 60 * 60 * 1000);\n  const startMs = startDate.getTime();\n  const endMs = endDate.getTime();\n\n  const isBusy = busyIntervals.some((busy) => overlaps(startMs, endMs, busy.start, busy.end));\n\n  if (!isBusy) {\n    slots.push({\n      start: startDate.toISOString(),\n      end: endDate.toISOString(),\n      label: `${formatHour(startDate)} - ${formatHour(endDate)}`,\n    });\n  }\n}\n\nreturn [{ json: { ok: true, slots } }];"
+      },
+      "id": "c5774547-358a-409f-a552-240bd1b6fd06",
+      "name": "Build Available Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 200 }}"
+        }
+      },
+      "id": "26ef0364-c720-4568-a497-554306cbd980",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        620,
+        120
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Availability": {
+      "main": [
+        [
+          {
+            "node": "Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [
+          {
+            "node": "Should Query Availability?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Query Availability?": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar - Busy Events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Postgres - Busy Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar - Busy Events": {
+      "main": [
+        [
+          {
+            "node": "Merge Busy Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Busy Bookings": {
+      "main": [
+        [
+          {
+            "node": "Merge Busy Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Busy Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Available Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Available Slots": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4fd5c152-a59c-4e2c-a637-b4b799bb5d92",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "consulting-availability",
+  "tags": []
+}

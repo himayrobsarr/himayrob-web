@@ -1,0 +1,145 @@
+{
+  "name": "Consulting Init Payment Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consulting/init-payment-test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c2309f70-c2e0-4a1c-9d6f-86422ad543d5",
+      "name": "Webhook - Init Payment Test",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -900,
+        120
+      ],
+      "webhookId": "consulting-init-payment-test"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\n\nconst testAmountInCents = Number(body.testAmountInCents || body.amountInCents || 150000);\nconst allowedTestAmounts = [150000, 100000, 10000, 100];\n\nif (!allowedTestAmounts.includes(testAmountInCents)) {\n  return [{ json: { ok: false, statusCode: 400, message: 'Test amount must be 150000, 100000, 10000 or 100 cents.' } }];\n}\n\nconst durationHours = 1;\nconst currency = 'COP';\nconst timezone = body.timezone || 'America/Bogota';\nconst startsAt = new Date(body.selectedStart || '2026-05-26T15:00:00.000Z');\nconst endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000);\n\nconst bookingUuid = `${Date.now()}_${Math.random().toString(16).slice(2)}`;\nconst reference = `test_booking_${bookingUuid}`;\nconst redirectUrl = 'https://himayrob.com/consultoria/gracias';\n\nreturn [{\n  json: {\n    ok: true,\n    fullName: String(body.fullName || 'Cliente Prueba Wompi').trim(),\n    email: String(body.email || 'cliente.prueba@example.com').trim().toLowerCase(),\n    phone: String(body.phone || '3001234567').trim(),\n    businessType: body.businessType || 'test',\n    needType: body.needType || 'test-wompi',\n    projectStage: body.projectStage || 'test',\n    message: body.message || 'Pago real de prueba Wompi',\n    source: body.source || 'web-consultoria-test',\n    durationHours,\n    startsAt: startsAt.toISOString(),\n    endsAt: endsAt.toISOString(),\n    timezone,\n    amountInCents: testAmountInCents,\n    currency,\n    reference,\n    redirectUrl,\n  }\n}];"
+      },
+      "id": "a3b3a8e7-0974-45df-8205-49d01efdc6c9",
+      "name": "Build Test Payment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "with lead_insert as (\n  insert into consulting.leads (\n    full_name,\n    email,\n    phone,\n    business_type,\n    need_type,\n    project_stage,\n    message,\n    source\n  )\n  values (\n    $1, $2, $3, $4, $5, $6, $7, $8\n  )\n  returning id\n),\nbooking_insert as (\n  insert into consulting.bookings (\n    lead_id,\n    status,\n    duration_hours,\n    starts_at,\n    ends_at,\n    timezone,\n    amount_in_cents,\n    currency,\n    wompi_reference,\n    expires_at,\n    is_test\n  )\n  select\n    id,\n    'pending_payment',\n    $9,\n    $10::timestamptz,\n    $11::timestamptz,\n    $12,\n    $13,\n    $14,\n    $15,\n    now() + interval '30 minutes',\n    true\n  from lead_insert\n  returning id, wompi_reference, amount_in_cents, currency\n),\npayment_insert as (\n  insert into consulting.payments (\n    booking_id,\n    wompi_reference,\n    status,\n    amount_in_cents,\n    currency\n  )\n  select\n    id,\n    wompi_reference,\n    'pending',\n    amount_in_cents,\n    currency\n  from booking_insert\n  returning id\n)\nselect\n  booking_insert.id as booking_id,\n  booking_insert.wompi_reference,\n  booking_insert.amount_in_cents,\n  booking_insert.currency\nfrom booking_insert;",
+        "options": {
+          "queryReplacement": "={{ [\n  $('Build Test Payment').item.json.fullName,\n  $('Build Test Payment').item.json.email,\n  $('Build Test Payment').item.json.phone,\n  $('Build Test Payment').item.json.businessType,\n  $('Build Test Payment').item.json.needType,\n  $('Build Test Payment').item.json.projectStage,\n  $('Build Test Payment').item.json.message,\n  $('Build Test Payment').item.json.source,\n  $('Build Test Payment').item.json.durationHours,\n  $('Build Test Payment').item.json.startsAt,\n  $('Build Test Payment').item.json.endsAt,\n  $('Build Test Payment').item.json.timezone,\n  $('Build Test Payment').item.json.amountInCents,\n  $('Build Test Payment').item.json.currency,\n  $('Build Test Payment').item.json.reference\n] }}"
+        }
+      },
+      "id": "c792163c-60c9-44d1-90e9-c256b2718ac9",
+      "name": "Postgres - Create Test Booking",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        120
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "hostinger_db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const booking = $('Postgres - Create Test Booking').first()?.json;\nconst request = $('Build Test Payment').first().json;\n\nif (!booking?.wompi_reference) {\n  return [{ json: { ok: false, statusCode: 500, message: 'Could not create test booking.' } }];\n}\n\nconst publicKey = 'REPLACE_WITH_WOMPI_PUBLIC_KEY';\nconst integritySecret = 'REPLACE_WITH_WOMPI_INTEGRITY_SECRET';\n\nconst reference = booking.wompi_reference;\nconst amountInCents = Number(booking.amount_in_cents);\nconst currency = booking.currency || 'COP';\nconst text = String(reference) + String(amountInCents) + String(currency) + String(integritySecret);\n\nfunction rightRotate(value, amount) {\n  return (value >>> amount) | (value << (32 - amount));\n}\n\nfunction sha256(ascii) {\n  const mathPow = Math.pow;\n  const maxWord = mathPow(2, 32);\n  const lengthProperty = 'length';\n  let i;\n  let j;\n  const words = [];\n  const asciiBitLength = ascii[lengthProperty] * 8;\n  let hash = sha256.h = sha256.h || [];\n  const k = sha256.k = sha256.k || [];\n  let primeCounter = k[lengthProperty];\n  const isComposite = {};\n\n  for (let candidate = 2; primeCounter < 64; candidate++) {\n    if (!isComposite[candidate]) {\n      for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;\n      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;\n      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;\n    }\n  }\n\n  ascii += '\\x80';\n  while (ascii[lengthProperty] % 64 - 56) ascii += '\\x00';\n\n  for (i = 0; i < ascii[lengthProperty]; i++) {\n    j = ascii.charCodeAt(i);\n    if (j >> 8) return '';\n    words[i >> 2] |= j << (((3 - i) % 4) * 8);\n  }\n\n  words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;\n  words[words[lengthProperty]] = asciiBitLength;\n\n  for (j = 0; j < words[lengthProperty];) {\n    const w = words.slice(j, j += 16);\n    const oldHash = hash;\n    hash = hash.slice(0, 8);\n\n    for (i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const temp1 =\n        hash[7] +\n        (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) +\n        ((e & hash[5]) ^ ((~e) & hash[6])) +\n        k[i] +\n        (w[i] = i < 16\n          ? w[i]\n          : (w[i - 16] +\n              (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) +\n              w[i - 7] +\n              (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))) | 0);\n      const temp2 =\n        (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) +\n        ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(temp1 + temp2) | 0].concat(hash);\n      hash[4] = (hash[4] + temp1) | 0;\n    }\n\n    for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;\n  }\n\n  let hex = '';\n  for (i = 0; i < 8; i++) {\n    for (j = 3; j + 1; j--) {\n      const b = (hash[i] >> (j * 8)) & 255;\n      hex += ((b < 16) ? '0' : '') + b.toString(16);\n    }\n  }\n  return hex;\n}\n\nconst integrity = sha256(text);\n\nreturn [{\n  json: {\n    ok: true,\n    test: true,\n    reference,\n    amountInCents,\n    currency,\n    redirectUrl: request.redirectUrl,\n    integrity,\n    publicKey,\n    bookingId: booking.booking_id,\n  }\n}];"
+      },
+      "id": "fd8157bb-73dd-44cd-a12b-f495c1a61097",
+      "name": "Sign Wompi Test Integrity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 200 }}"
+        }
+      },
+      "id": "d51d8a5d-4852-476b-bf75-7e75f98108fb",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        120,
+        120
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Init Payment Test": {
+      "main": [
+        [
+          {
+            "node": "Build Test Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Test Payment": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Create Test Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Create Test Booking": {
+      "main": [
+        [
+          {
+            "node": "Sign Wompi Test Integrity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Wompi Test Integrity": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ace8aa21-5e62-41df-b28c-4e0c2f7053839",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "consulting-init-payment-test",
+  "tags": []
+}
