@@ -4,6 +4,7 @@ import Button from "../ui/Button";
 const navLinks = [
   { label: "Paquetes web", href: "/#paquetes-web" },
   { label: "IA", href: "/#ia" },
+  { label: "Demos IA", href: "/demos" },
   { label: "Paginas creadas", href: "/#paginas-creadas" },
   { label: "Mantenimiento", href: "/#mantenimiento" },
   { label: "Clase gratis", href: "/#clase-gratis" },

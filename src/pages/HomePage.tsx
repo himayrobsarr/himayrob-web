@@ -9,6 +9,7 @@ import WebPackagesSection from "../sections/home/WebPackagesSection";
 import MaintenanceSection from "../sections/home/MaintenanceSection";
 import WebsitePreviewsSection from "../sections/home/WebsitePreviewsSection";
 import AiValueSection from "../sections/home/AiValueSection";
+import DemoAgentsSection from "../sections/home/DemoAgentsSection";
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <AiValueSection />
+        <DemoAgentsSection />
         <WebPackagesSection />
         <WebsitePreviewsSection />
         <MaintenanceSection />
